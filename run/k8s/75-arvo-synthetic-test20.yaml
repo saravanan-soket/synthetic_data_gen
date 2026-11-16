@@ -1,0 +1,90 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: arvo-synthetic-test20
+  namespace: eka-bench
+spec:
+  completionMode: Indexed
+  completions: 20
+  parallelism: 20
+  backoffLimitPerIndex: 1
+  maxFailedIndexes: 20
+  activeDeadlineSeconds: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values: [soketlab-worker002, soketlab-worker018]
+      containers:
+      - name: agent
+        image: python:3.12-bookworm
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4Gi
+          limits:
+            cpu: "4"
+            memory: 8Gi
+        env:
+        - name: SHARD_COUNT
+          value: "20"
+        - name: LITELLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: litellm-proxy-key
+              key: LITELLM_API_KEY
+        - name: LANGFUSE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: cybergym-langfuse
+              key: LANGFUSE_HOST
+        - name: LANGFUSE_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cybergym-langfuse
+              key: LANGFUSE_PUBLIC_KEY
+        - name: LANGFUSE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cybergym-langfuse
+              key: LANGFUSE_SECRET_KEY
+        command: ["bash", "-lc"]
+        args:
+        - |
+          TD=/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/run/tasks_synthetic_4631
+          for i in $(seq 1 24); do [ -d "$TD" ] && [ "$(ls "$TD" 2>/dev/null | wc -l)" -gt 0 ] && break; echo "waiting for data ($i)"; sleep 5; done
+          [ -d "$TD" ] || { echo "DATA NOT VISIBLE on $(hostname)"; exit 1; }
+          python3 -u /app/agent_runner_glm.py \
+            --tasks-dir "$TD" \
+            --trace-dir /projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/run/traces_synthetic_test20 \
+            --poc-dir /projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/run/pocs_synthetic_test20 \
+            --only arvo_42470226,arvo_42470146,arvo_42470692,arvo_42475954,arvo_42473267,arvo_42470017,arvo_42470716,arvo_42475209,arvo_42470702,arvo_42474129,arvo_42470142,arvo_42471457,arvo_42472316,arvo_42470093,arvo_42475993,arvo_42470067,arvo_42474455,arvo_42473083,arvo_42475838,arvo_42471116 \
+            --base-url http://litellm-defensive-proxy.exploitbench.svc.cluster.local:4000/v1 \
+            --model glm5.3-defense \
+            --api-key "$LITELLM_API_KEY" \
+            --concurrency 1 \
+            --max-turns 60 \
+            --ctx-budget 64000 \
+            --max-tokens 16000 \
+            --bash-timeout 90 \
+            --task-deadline 1800
+        volumeMounts:
+        - name: code
+          mountPath: /app
+        - name: projects
+          mountPath: /projects/data
+      volumes:
+      - name: code
+        configMap:
+          name: agent-code-glm
+      - name: projects
+        hostPath:
+          path: /projects/data
+          type: Directory
+

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "arvo-40096184",
+    "image": "local/arvo-mcp-40096184:latest",
+    "interface": "rl.mcp.v8_exploit.v1",
+    "_base": "n132/arvo:40096184-vul",
+    "_project": "skia",
+    "_fuzz_target": "android_codec",
+    "_sanitizer": "asan",
+    "_crash_type": "Heap-buffer-overflow WRITE 4"
+  },
+  {
+    "id": "arvo-40096185",
+    "image": "local/arvo-mcp-40096185:latest",
+    "interface": "rl.mcp.v8_exploit.v1",
+    "_base": "n132/arvo:40096185-vul",
+    "_project": "skia",
+    "_fuzz_target": "image_decode",
+    "_sanitizer": "asan",
+    "_crash_type": "Heap-buffer-overflow READ 1"
+  },
+  {
+    "id": "arvo-42470017",
+    "image": "local/arvo-mcp-42470017:latest",
+    "interface": "rl.mcp.v8_exploit.v1",
+    "_base": "n132/arvo:42470017-vul",
+    "_project": "curl",
+    "_fuzz_target": "curl_fuzzer_http",
+    "_sanitizer": "ubsan",
+    "_crash_type": "Null-dereference READ"
+  }
+]

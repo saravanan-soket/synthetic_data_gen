@@ -1,0 +1,108 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: arvo-synthetic-160
+  namespace: eka-bench
+spec:
+  completionMode: Indexed
+  completions: 160
+  parallelism: 160
+  backoffLimitPerIndex: 2
+  maxFailedIndexes: 160
+  activeDeadlineSeconds: 43200
+  template:
+    spec:
+      restartPolicy: Never
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values: [soketlab-worker002, soketlab-worker018]
+      containers:
+      - name: agent
+        image: python:3.12-bookworm
+        resources:
+          requests:
+            cpu: "2"
+            memory: 4Gi
+          limits:
+            cpu: "4"
+            memory: 10Gi
+        env:
+        - name: SHARD_COUNT
+          value: "160"
+        - name: LITELLM_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: litellm-proxy-key
+              key: LITELLM_API_KEY
+        - name: LANGFUSE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: cybergym-langfuse
+              key: LANGFUSE_HOST
+        - name: LANGFUSE_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cybergym-langfuse
+              key: LANGFUSE_PUBLIC_KEY
+        - name: LANGFUSE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cybergym-langfuse
+              key: LANGFUSE_SECRET_KEY
+        command: ["bash", "-lc"]
+        args:
+        - |
+          set -e
+          chmod 700 /var/cybergym
+          chmod 700 /usr/bin/curl /usr/bin/wget 2>/dev/null || true
+          mkdir -p /workspace
+          (DEBIAN_FRONTEND=noninteractive dpkg -i /var/cybergym/debs/*.deb || dpkg --configure -a) >/tmp/dpkg.log 2>&1 || { tail -n 20 /tmp/dpkg.log; exit 1; }
+          rm -f /tmp/dpkg.log
+          which clang cmake gdb valgrind >/dev/null
+          TD=/var/cybergym/tasks
+          for i in $(seq 1 24); do [ -d "$TD" ] && [ "$(ls "$TD" 2>/dev/null | wc -l)" -gt 0 ] && break; echo "waiting for data ($i)"; sleep 5; done
+          [ -d "$TD" ] || { echo "DATA NOT VISIBLE on $(hostname)"; exit 1; }
+          python3 -u /app/agent_runner_glm.py \
+            --tasks-dir /var/cybergym/tasks \
+            --trace-dir /var/cybergym/traces \
+            --poc-dir /var/cybergym/pocs \
+            --sandbox-base /workspace \
+            --base-url http://litellm-defensive-proxy.exploitbench.svc.cluster.local:4000/v1 \
+            --model glm5.3-defense \
+            --api-key "$LITELLM_API_KEY" \
+            --concurrency 1 \
+            --max-turns 60 \
+            --ctx-budget 80000 \
+            --max-tokens 16000 \
+            --bash-timeout 90 \
+            --task-deadline 1800
+        volumeMounts:
+        - name: code
+          mountPath: /app
+        - name: projects
+          mountPath: /var/cybergym/tasks
+          subPath: datasets/code_data/cyber_bench/synthetic_data_gen/run/tasks_synthetic_4631
+          readOnly: true
+        - name: projects
+          mountPath: /var/cybergym/traces
+          subPath: datasets/code_data/cyber_bench/synthetic_data_gen/run/traces_synthetic_4631
+        - name: projects
+          mountPath: /var/cybergym/pocs
+          subPath: datasets/code_data/cyber_bench/synthetic_data_gen/run/pocs_synthetic_4631
+        - name: projects
+          mountPath: /var/cybergym/debs
+          subPath: datasets/code_data/cyber_bench/run/data/deb_cache
+          readOnly: true
+      volumes:
+      - name: code
+        configMap:
+          name: agent-code-glm
+      - name: projects
+        hostPath:
+          path: /projects/data
+          type: Directory

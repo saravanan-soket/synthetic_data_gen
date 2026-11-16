@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+*.pem
+*.key
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+# generated per-shard build contexts and run outputs
+exploitbench_agent/benchmarks/bench-arvo/contexts/
+exploitbench_agent/benchmarks/bench-arvo/build-*/
+exploitbench_agent/runs/
+exploitbench_agent/runs_arvo_*/
+exploitbench_agent/data/
+run/tasks*/
+run/traces*/
+run/pocs*/
+run/logs/
+*.tar
+*.tar.gz
+*.sqlite*
+*.db
