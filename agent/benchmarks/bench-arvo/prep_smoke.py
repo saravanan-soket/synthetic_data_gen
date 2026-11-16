@@ -2,9 +2,10 @@
 """Generate per-bug description.txt + the arvo-smoke benchmark YAML."""
 import json, os, sqlite3, sys, pathlib
 
-ARVO_DB = "/projects/data/datasets/code_data/cyber_bench/run/data/arvo.db"
+ARVO_DB = os.environ.get("ARVO_DB", "/projects/data/datasets/code_data/cyber_bench/run/data/arvo.db")
 HERE = pathlib.Path(__file__).parent
-IDS = json.loads(open("/tmp/arvo_smoke_ids.json").read()) if os.path.exists("/tmp/arvo_smoke_ids.json") else [40096184, 40096185, 42470017]
+_IDS_FILE = os.environ.get("ARVO_SMOKE_IDS", "/tmp/arvo_smoke_ids.json")
+IDS = json.loads(open(_IDS_FILE).read()) if os.path.exists(_IDS_FILE) else [40096184, 40096185, 42470017]
 
 con = sqlite3.connect(ARVO_DB)
 con.row_factory = sqlite3.Row

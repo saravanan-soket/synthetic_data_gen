@@ -11,11 +11,11 @@ venv/
 *.egg-info/
 .pytest_cache/
 # generated per-shard build contexts and run outputs
-exploitbench_agent/benchmarks/bench-arvo/contexts/
-exploitbench_agent/benchmarks/bench-arvo/build-*/
-exploitbench_agent/runs/
-exploitbench_agent/runs_arvo_*/
-exploitbench_agent/data/
+agent/benchmarks/bench-arvo/contexts/
+agent/benchmarks/bench-arvo/build-*/
+agent/runs/
+agent/runs_arvo_*/
+agent/data/
 run/tasks*/
 run/traces*/
 run/pocs*/

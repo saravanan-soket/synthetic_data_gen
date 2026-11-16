@@ -1,6 +1,6 @@
 #!/bin/bash
 set -uo pipefail
-ROOT=/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/exploitbench_agent
+ROOT=/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/agent
 BA=$ROOT/benchmarks/bench-arvo
 mkdir -p "$ROOT/runs_arvo_smoke"
 echo "=== start $(date -u +%FT%TZ) ==="

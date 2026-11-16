@@ -7,7 +7,7 @@ Kubernetes jobs used to run them at scale.
 
 ```
 synthetic_data_gen/
-├── exploitbench_agent/      ExploitBench agent loop (trimmed) + the ARVO MCP environment
+├── agent/      ExploitBench agent loop (trimmed) + the ARVO MCP environment
 │   ├── exploitbench/        python package: cli, runner/, contract/, db/, catalog, config
 │   ├── benchmarks/
 │   │   ├── bench-arvo/      ARVO adapter: Dockerfile, MCP server, shard prep, build+run scripts
@@ -35,7 +35,7 @@ Shared inputs are **not** in this repo. Every script expects them at
 
 ---
 
-## Path A: ExploitBench agent + ARVO MCP environment (`exploitbench_agent/`)
+## Path A: ExploitBench agent + ARVO MCP environment (`agent/`)
 
 This is the upstream [ExploitBench](https://github.com/exploitbench) runner cut down to the
 pieces needed to drive an agent. Removed from upstream: the bench-v8 submodule and V8 configs,
@@ -95,7 +95,7 @@ results) and is the training-data unit for this path.
 ### Running
 
 ```bash
-cd exploitbench_agent
+cd agent
 make install && source .venv/bin/activate
 printf 'LITELLM_PROXY_API_KEY=...\nLITELLM_PROXY_API_BASE=http://<proxy>:4000/v1\n' > .env
 exploitbench doctor
@@ -138,4 +138,4 @@ filter that decides which trajectories are kept for SFT.
 
 ## Credits
 
-`exploitbench_agent/` is derived from ExploitBench (MIT, see `exploitbench_agent/LICENSE`).
+`agent/` is derived from ExploitBench (MIT, see `agent/LICENSE`).

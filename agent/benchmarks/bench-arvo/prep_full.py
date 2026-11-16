@@ -11,8 +11,8 @@ ap.add_argument("--shard-index", type=int, required=True)
 ap.add_argument("--total-tasks", type=int, default=6138, help="use first N task ids (set to 4631 to match plan)")
 args = ap.parse_args()
 
-ARVO_DB = "/projects/data/datasets/code_data/cyber_bench/run/data/arvo.db"
-IDS_FILE = "/projects/data/datasets/code_data/cyber_bench/run/data/arvo_training_ids.json"
+ARVO_DB = os.environ.get("ARVO_DB", "/projects/data/datasets/code_data/cyber_bench/run/data/arvo.db")
+IDS_FILE = os.environ.get("ARVO_IDS_FILE", "/projects/data/datasets/code_data/cyber_bench/run/data/arvo_training_ids.json")
 HERE = pathlib.Path(__file__).parent
 OUT_ROOT = HERE / "contexts" / f"shard-{args.shard_index:03d}"
 OUT_ROOT.mkdir(parents=True, exist_ok=True)

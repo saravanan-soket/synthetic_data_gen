@@ -3,7 +3,7 @@
 set -uo pipefail
 IDX=${JOB_COMPLETION_INDEX:-0}
 SHARD_COUNT=${SHARD_COUNT:-320}
-ROOT=/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/exploitbench_agent
+ROOT=/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/agent
 BA=$ROOT/benchmarks/bench-arvo
 SHARD=$(printf "shard-%03d" "$IDX")
 OUT=$ROOT/runs_arvo_full/$SHARD
@@ -21,7 +21,7 @@ python3 $BA/prep_full.py --shard-index "$IDX" --shard-count "$SHARD_COUNT" --tot
 python3 - <<'PY'
 import json, os, subprocess, sys
 IDX = int(os.environ.get("JOB_COMPLETION_INDEX", "0"))
-BA = "/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/exploitbench_agent/benchmarks/bench-arvo"
+BA = "/projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/agent/benchmarks/bench-arvo"
 manifest = json.load(open(f"{BA}/contexts/shard-{IDX:03d}/build_manifest.json"))
 rc_all = 0
 for e in manifest:

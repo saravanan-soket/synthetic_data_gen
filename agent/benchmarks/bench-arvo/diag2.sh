@@ -4,7 +4,7 @@ BASE=n132/arvo:40096184-vul
 IMG=local/arvo-mcp-40096184:latest
 echo "=== rebuild derived image properly ==="
 docker pull $BASE 2>&1 | tail -3
-cd /projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/exploitbench_agent/benchmarks/bench-arvo/build-40096184
+cd /projects/data/datasets/code_data/cyber_bench/synthetic_data_gen/agent/benchmarks/bench-arvo/build-40096184
 docker build -t $IMG \
     --build-arg ARVO_BASE=$BASE \
     --build-arg ARVO_ID=40096184 \
